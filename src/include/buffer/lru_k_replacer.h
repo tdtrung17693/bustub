@@ -26,6 +26,24 @@ namespace bustub {
 enum class AccessType { Unknown = 0, Get, Scan };
 
 class LRUKNode {
+ public:
+  LRUKNode(frame_id_t frame_id, size_t k) : k_(k), fid_(frame_id) {}
+
+  void AddEntry(size_t time){
+    if (history_.size() == k_) {
+      history_.pop_front();
+    }
+    history_.push_back(time);
+  }
+
+  size_t CalculateKDistance(size_t timestamp)  {
+    if (history_.size() < k_) {
+      return UINT64_MAX;
+    }
+
+    return timestamp - history_.front();
+  }
+
  private:
   /** History of last seen K timestamps of this page. Least recent timestamp stored in front. */
   // Remove maybe_unused if you start using them. Feel free to change the member variables as you want.
@@ -34,6 +52,7 @@ class LRUKNode {
   [[maybe_unused]] size_t k_;
   [[maybe_unused]] frame_id_t fid_;
   [[maybe_unused]] bool is_evictable_{false};
+  friend class LRUKReplacer;
 };
 
 /**
@@ -150,8 +169,18 @@ class LRUKReplacer {
  private:
   // TODO(student): implement me! You can replace these member variables as you like.
   // Remove maybe_unused if you start using them.
-  [[maybe_unused]] std::unordered_map<frame_id_t, LRUKNode> node_store_;
-  [[maybe_unused]] size_t current_timestamp_{0};
+  std::unordered_map<frame_id_t, LRUKNode> node_store_;
+  auto CurrentTimestamp() -> size_t {
+    using std::chrono::duration_cast;
+    using std::chrono::system_clock;
+    using std::chrono::milliseconds;
+
+    const auto p1 = std::chrono::system_clock::now();
+
+    auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    p1.time_since_epoch()).count();
+    return time;
+  }
   [[maybe_unused]] size_t curr_size_{0};
   [[maybe_unused]] size_t replacer_size_;
   [[maybe_unused]] size_t k_;
