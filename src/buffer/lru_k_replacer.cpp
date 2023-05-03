@@ -30,7 +30,7 @@ auto LRUKReplacer::Evict(frame_id_t *frame_id) -> bool {
     }
 
     size_t distance = node.CalculateKDistance(current_timestamp);
-    printf("frame id = %d - size= %ld\n", a.first, node.history_.size());
+    // printf("frame id = %d - size= %ld\n", a.first, node.history_.size());
     if (distance == UINT64_MAX) {
       count_no_k_entry += 1;
     }
